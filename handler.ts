@@ -18,9 +18,9 @@ import {
   GRAPHQL_TRANSPORT_WS_PROTOCOL,
   MessageType,
 } from "./constants.ts";
-import { resolveData } from "./resolve.ts";
 import { GraphQLExecutionArgs } from "./types.ts";
 import { validateWebSocketRequest } from "./validates.ts";
+import { parseMessage } from "./parse.ts";
 
 /**
  * @throws `AggregateError` - When GraphQL schema validation error has occurred.
@@ -61,7 +61,6 @@ export default function createHandler(
     }
 
     register(data.socket, params);
-    console.log(data.response);
     return data.response;
   };
 }
@@ -82,7 +81,7 @@ function register(
   });
 
   socket.addEventListener("message", async ({ data }) => {
-    const [message, error] = resolveData(data);
+    const [message, error] = parseMessage(data);
 
     if (!message) {
       return socket.close(

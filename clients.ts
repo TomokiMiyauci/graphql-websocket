@@ -10,7 +10,7 @@ import {
   SubscribeMessage,
 } from "./types.ts";
 import { isString } from "./deps.ts";
-import { resolveData } from "./resolve.ts";
+import { parseMessage } from "./parse.ts";
 
 export interface GraphQLWebSocketEventMap {
   next: MessageEvent<NextMessage>;
@@ -95,7 +95,7 @@ export class ClientImpl extends WebSocket implements Client {
   ): void {
     if (["next"].includes(type)) {
       this.#ws.addEventListener("message", (ev) => {
-        const [data, error] = resolveData(ev.data);
+        const [data, error] = parseMessage(ev.data);
 
         if (!data) {
           return this.close(CloseCode.BadRequest, error.message);
