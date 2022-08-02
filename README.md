@@ -8,6 +8,44 @@ GraphQL client and handler compliant with GraphQL over WebSocket specification
 
 ## API
 
+### createHandler
+
+Create `Request` handler compliant GraphQL over WebSocket server.
+
+#### Example
+
+```ts
+import { createHandler } from "https://deno.land/x/graphql_websocket@$VERSION/mod.ts";
+import { serve } from "https://deno.land/std@$VERSION/http/mod.ts";
+import { buildSchema } from "https://esm.sh/graphql@$VERSION";
+
+const handler = createHandler({
+  schema: buildSchema(`type Query { hello: String }
+type Subscription {
+  greetings: String!
+}`),
+  rootValue: {
+    greetings: async function* () {
+      for (const hi of ["Hi", "Bonjour", "Hola", "Ciao", "Zdravo"]) {
+        yield { greetings: hi };
+      }
+    },
+  },
+});
+
+serve(handler);
+```
+
+#### ReturnType
+
+`(req: Request) => Response`
+
+#### Throws
+
+- `AggregateError`
+
+  When GraphQL schema validation error has occurred.
+
 ### createClient
 
 Create GraphQL over WebSocket client.
