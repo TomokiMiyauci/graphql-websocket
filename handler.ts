@@ -6,6 +6,7 @@ import {
   GraphQLError,
   OperationTypeNode,
   parse,
+  Status,
   subscribe,
   tryCatchSync,
   validate,
@@ -19,13 +20,14 @@ import {
 } from "./constants.ts";
 import { resolveData } from "./resolve.ts";
 import { GraphQLExecutionArgs } from "./types.ts";
+import { validateWebSocketRequest } from "./validates.ts";
 
 /**
  * @throws `AggregateError` - When GraphQL schema validation error has occurred.
  */
 export default function createHandler(
   params: GraphQLExecutionArgs,
-): (req: Request) => Response | undefined {
+): (req: Request) => Response {
   const validationResult = validateSchema(params.schema);
   if (validationResult.length) {
     throw new AggregateError(
@@ -33,24 +35,35 @@ export default function createHandler(
       "GraphQL schema validation error",
     );
   }
-  return (req: Request) => {
-    if (isWebsocketRequest(req)) {
-      const protocol = req.headers.get("sec-websocket-protocol") ?? undefined;
-      const { response, socket } = Deno.upgradeWebSocket(req, {
-        protocol,
+
+  return (req: Request): Response => {
+    const [result, error] = validateWebSocketRequest(req);
+    if (!result) {
+      const headers = error.status === Status.MethodNotAllowed
+        ? new Headers({ "Allow": "GET" })
+        : undefined;
+      return new Response(error.message, {
+        status: error.status,
+        headers,
       });
-
-      register(socket, params);
-
-      return response;
     }
+
+    const protocol = req.headers.get("sec-websocket-protocol") ?? undefined;
+    const [data, err] = tryCatchSync(() =>
+      Deno.upgradeWebSocket(req, { protocol })
+    );
+
+    if (!data) {
+      const msg = resolveErrorMsg(err);
+      return new Response(msg, {
+        status: Status.InternalServerError,
+      });
+    }
+
+    register(data.socket, params);
+    console.log(data.response);
+    return data.response;
   };
-}
-
-function isWebsocketRequest(req: Request): boolean {
-  const upgrade = req.headers.get("upgrade");
-
-  return upgrade === "websocket";
 }
 
 function register(
@@ -175,4 +188,8 @@ function getExecutor(
   operationTypeNode: OperationTypeNode,
 ): typeof subscribe | typeof execute {
   return operationTypeNode === "subscription" ? subscribe : execute;
+}
+
+function resolveErrorMsg(value: unknown): string {
+  return value instanceof Error ? value.message : "Unknown error has occurred.";
 }

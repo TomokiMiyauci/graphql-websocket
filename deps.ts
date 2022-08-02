@@ -24,6 +24,10 @@ export {
   validateSchema,
 } from "https://esm.sh/graphql@16.5.0";
 export { Status } from "https://deno.land/std@0.150.0/http/http_status.ts";
+export {
+  createHttpError,
+  HttpError,
+} from "https://deno.land/std@0.150.0/http/http_errors.ts";
 
 // deno-lint-ignore no-explicit-any
 export function has<T extends Record<any, any>, K extends string>(
