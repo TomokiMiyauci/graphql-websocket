@@ -118,7 +118,7 @@ export class ClientImpl extends WebSocket implements Client {
  * @param url The URL to which to connect; this should be the URL to which the WebSocket server will respond.
  * @throws SyntaxError
  * ```ts
- * import { createClient } from "https://deno.land/x/graphql_websocket/mod.ts";
+ * import { createClient } from "https://deno.land/x/graphql_websocket@$VERSION/mod.ts";
  *
  * const Client = createClient(`wss://<ENDPOINT>`);
  * ```
