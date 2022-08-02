@@ -26,7 +26,7 @@ interface GqlClient {
   ): void;
 }
 
-export class GraphQLClient extends WebSocket implements GqlClient {
+export default class GraphQLClient extends WebSocket implements GqlClient {
   #ws: WebSocket;
   #queue: (string | ArrayBufferLike | Blob | ArrayBufferView)[] = [];
 
@@ -55,7 +55,9 @@ export class GraphQLClient extends WebSocket implements GqlClient {
   }
 
   subscribe(params: PartialGraphQLParameters): void {
+    const id = crypto.randomUUID();
     const msg: SubscribeMessage = {
+      id,
       type: MessageType.Subscribe,
       payload: params,
     };
@@ -85,8 +87,12 @@ export class GraphQLClient extends WebSocket implements GqlClient {
           return this.close(CloseCode.BadRequest, error.message);
         }
 
-        // deno-lint-ignore ban-types
-        (listener as Function)({ ...ev, data });
+        switch (data.type) {
+          case MessageType.Next: {
+            // deno-lint-ignore ban-types
+            (listener as Function)({ ...ev, data });
+          }
+        }
       }, options);
     } else {
       this.#ws.addEventListener(type, listener, options);

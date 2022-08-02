@@ -2,18 +2,16 @@ import {
   DocumentNode,
   execute,
   ExecutionArgs,
-  ExecutionResult,
   getOperationAST,
   GraphQLError,
   OperationTypeNode,
   parse,
-  Status,
   subscribe,
   tryCatchSync,
   validate,
   validateSchema,
 } from "./deps.ts";
-import { isAsyncGenerator, MessengerImpl } from "./utils.ts";
+import { isAsyncGenerator, isRequestError, MessengerImpl } from "./utils.ts";
 import {
   CloseCode,
   GRAPHQL_TRANSPORT_WS_PROTOCOL,
@@ -27,7 +25,7 @@ import { GraphQLExecutionArgs } from "./types.ts";
  */
 export default function createHandler(
   params: GraphQLExecutionArgs,
-): (req: Request) => Response | Promise<Response> {
+): (req: Request) => Response | undefined {
   const validationResult = validateSchema(params.schema);
   if (validationResult.length) {
     throw new AggregateError(
@@ -35,7 +33,7 @@ export default function createHandler(
       "GraphQL schema validation error",
     );
   }
-  return (req: Request): Response => {
+  return (req: Request) => {
     if (isWebsocketRequest(req)) {
       const protocol = req.headers.get("sec-websocket-protocol") ?? undefined;
       const { response, socket } = Deno.upgradeWebSocket(req, {
@@ -46,10 +44,6 @@ export default function createHandler(
 
       return response;
     }
-
-    return new Response("Not Found", {
-      status: Status.NotFound,
-    });
   };
 }
 
@@ -64,7 +58,7 @@ function register(
   args: GraphQLExecutionArgs,
 ): void {
   socket.addEventListener("open", () => {
-    if (!isValidProtocol(socket.protocol)) {
+    if (socket.protocol !== GRAPHQL_TRANSPORT_WS_PROTOCOL) {
       return socket.close(
         CloseCode.SubprotocolNotAcceptable,
         "Sub protocol is not acceptable",
@@ -88,21 +82,23 @@ function register(
 
     switch (message.type) {
       case MessageType.ConnectionInit: {
-        return safeSend(
+        safeSend(
           socket,
           JSON.stringify({
             type: MessageType.ConnectionAck,
           }),
         );
+        break;
       }
 
       case MessageType.Ping: {
-        return safeSend(
+        safeSend(
           socket,
           JSON.stringify({
             type: MessageType.Pong,
           }),
         );
+        break;
       }
 
       case MessageType.Subscribe: {
@@ -144,23 +140,19 @@ function register(
 
         if (isAsyncGenerator(executionResult)) {
           for await (const result of executionResult) {
-            const msg = messenger.nextMsg({ payload: result, id: message.id });
+            const msg = messenger.nextMsg(message.id, result);
             safeSend(socket, JSON.stringify(msg));
           }
         } else {
           const msg = isRequestError(executionResult)
             ? messenger.errorMsg(message.id, executionResult.errors)
-            : messenger.nextMsg({
-              payload: executionResult,
-              id: message.id,
-            });
+            : messenger.nextMsg(message.id, executionResult);
 
           safeSend(socket, JSON.stringify(msg));
         }
 
         const msg = messenger.completeMsg(message.id);
-        safeSend(socket, JSON.stringify(msg));
-        return;
+        return safeSend(socket, JSON.stringify(msg));
       }
     }
   });
@@ -183,22 +175,4 @@ function getExecutor(
   operationTypeNode: OperationTypeNode,
 ): typeof subscribe | typeof execute {
   return operationTypeNode === "subscription" ? subscribe : execute;
-}
-
-function isValidProtocol(
-  protocol: string,
-): protocol is typeof GRAPHQL_TRANSPORT_WS_PROTOCOL {
-  return [GRAPHQL_TRANSPORT_WS_PROTOCOL].includes(
-    protocol,
-  );
-}
-
-type RequestErrorResult = {
-  errors: [];
-};
-
-function isRequestError(
-  executionResult: ExecutionResult,
-): executionResult is RequestErrorResult {
-  return !("data" in executionResult);
 }

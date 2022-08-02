@@ -1,13 +1,45 @@
 import { MessageType } from "./constants.ts";
-import { ExecutionArgs, GraphQLError, json, PartialBy } from "./deps.ts";
+import {
+  ExecutionArgs,
+  ExecutionResult,
+  GraphQLError,
+  json,
+  PartialBy,
+} from "./deps.ts";
 
 interface BaseMessage {
   type: MessageType;
 }
 
+type WithId = {
+  id: string;
+};
+
 type PartialGraphQLParameter = keyof Omit<GraphQLParameters, "query">;
 
-export interface SubscribeMessage extends BaseMessage {
+export interface ConnectionInitMessage extends BaseMessage {
+  type: MessageType.ConnectionInit;
+
+  payload?: Record<string, unknown>;
+}
+
+export interface ConnectionAckMessage extends BaseMessage {
+  type: MessageType.ConnectionAck;
+
+  payload?: Record<string, unknown>;
+}
+
+export interface PingMessage extends BaseMessage {
+  type: MessageType.Ping;
+  payload?: Record<string, unknown>;
+}
+
+export interface PongMessage extends BaseMessage {
+  type: MessageType.Pong;
+  payload?: Record<string, unknown>;
+}
+
+export interface SubscribeMessage extends BaseMessage, WithId {
   type: MessageType.Subscribe;
   payload: Readonly<PartialGraphQLParameters>;
 }
@@ -34,26 +66,17 @@ export type GraphQLParameters = {
   extensions: Record<string, json> | null;
 };
 
-export interface ExecutionResult<
-  Data = Record<string, unknown>,
-  Extensions = Record<string, unknown>,
-> {
-  errors?: ReadonlyArray<GraphQLError>;
-  data?: Data | null;
-  extensions?: Extensions;
-}
-
-export interface NextMessage extends BaseMessage {
+export interface NextMessage extends BaseMessage, WithId {
   type: MessageType.Next;
   payload: ExecutionResult;
 }
 
-export interface ErrorMessage extends BaseMessage {
+export interface ErrorMessage extends BaseMessage, WithId {
   type: MessageType.Error;
-  payload: GraphQLError[];
+  payload: readonly GraphQLError[];
 }
 
-export interface CompleteMessage extends BaseMessage {
+export interface CompleteMessage extends BaseMessage, WithId {
   type: MessageType.Complete;
 }
 
@@ -61,6 +84,10 @@ export type Message =
   | SubscribeMessage
   | NextMessage
   | ErrorMessage
-  | CompleteMessage;
+  | CompleteMessage
+  | ConnectionAckMessage
+  | ConnectionInitMessage
+  | PingMessage
+  | PongMessage;
 
 export type GraphQLExecutionArgs = PartialBy<ExecutionArgs, "document">;
