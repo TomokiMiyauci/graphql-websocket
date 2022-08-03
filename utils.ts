@@ -8,12 +8,6 @@ import {
 } from "./types.ts";
 import { MessageType } from "./constants.ts";
 
-export function isAsyncGenerator<T = unknown>(
-  val: unknown,
-): val is AsyncIterable<T> {
-  return typeof Object(val)[Symbol.asyncIterator] === "function";
-}
-
 export function isRequestError(
   executionResult: ExecutionResult,
 ): executionResult is RequiredBy<Omit<ExecutionResult, "data">, "errors"> {

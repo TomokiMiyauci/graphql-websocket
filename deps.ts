@@ -1,11 +1,12 @@
 export {
+  isAsyncIterable,
   isNil,
   isNull,
   isObject,
+  isPlainObject,
   isString,
   isUndefined,
-} from "https://deno.land/x/isx@v1.0.0-beta.17/mod.ts";
-import { isObject } from "https://deno.land/x/isx@v1.0.0-beta.17/mod.ts";
+} from "https://deno.land/x/isx@1.0.0-beta.19/mod.ts";
 export {
   JSON,
   type json,
@@ -55,10 +56,4 @@ export function tryCatchSync<R, E>(
   } catch (er) {
     return [, er];
   }
-}
-
-export function isPlainObject(
-  value: unknown,
-): value is Record<PropertyKey, unknown> {
-  return isObject(value) && value.constructor === Object;
 }

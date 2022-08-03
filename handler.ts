@@ -4,6 +4,7 @@ import {
   ExecutionArgs,
   getOperationAST,
   GraphQLError,
+  isAsyncIterable,
   OperationTypeNode,
   parse,
   Status,
@@ -12,7 +13,7 @@ import {
   validate,
   validateSchema,
 } from "./deps.ts";
-import { isAsyncGenerator, isRequestError, MessengerImpl } from "./utils.ts";
+import { isRequestError, MessengerImpl } from "./utils.ts";
 import {
   CloseCode,
   GRAPHQL_TRANSPORT_WS_PROTOCOL,
@@ -171,7 +172,7 @@ function register(
 
         const executionResult = await executor(executionArgs);
 
-        if (isAsyncGenerator(executionResult)) {
+        if (isAsyncIterable(executionResult)) {
           for await (const result of executionResult) {
             const msg = messenger.nextMsg(message.id, result);
             safeSend(socket, JSON.stringify(msg));
