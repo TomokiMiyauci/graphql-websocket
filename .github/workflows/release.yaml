@@ -68,6 +68,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - uses: codfish/semantic-release-action@v1
+      - uses: cycjimmy/semantic-release-action@v3
+        with:
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
