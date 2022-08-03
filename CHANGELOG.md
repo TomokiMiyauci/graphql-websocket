@@ -1,3 +1,10 @@
+# [1.0.0-beta.2](https://github.com/TomokiMiyauci/graphql-websocket/compare/1.0.0-beta.1...1.0.0-beta.2) (2022-08-03)
+
+
+### Features
+
+* **graphql_transport_ws:** change module entrypoint, add `graphql-transport-ws` protocol scope ([c6c12c0](https://github.com/TomokiMiyauci/graphql-websocket/commit/c6c12c07904a9095b25a36e151eccd9b49871eb0))
+
 # 1.0.0-beta.1 (2022-08-03)
 
 
