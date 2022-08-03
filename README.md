@@ -4,7 +4,7 @@
 [![deno doc](https://img.shields.io/badge/deno-doc-black)](https://doc.deno.land/https/deno.land/x/graphql_websocket/mod.ts)
 [![codecov](https://codecov.io/gh/TomokiMiyauci/graphql-websocket/branch/main/graph/badge.svg?token=0Dq5iqtnjw)](https://codecov.io/gh/TomokiMiyauci/graphql-websocket)
 
-GraphQL client and handler compliant with GraphQL over WebSocket specification
+GraphQL client and handler compliant with GraphQL over WebSocket specification.
 
 ## API
 
@@ -86,3 +86,9 @@ Client.subscribe({
   query: `subscription { test }`,
 });
 ```
+
+## License
+
+Copyright © 2022-present [TomokiMiyauci](https://github.com/TomokiMiyauci).
+
+Released under the [MIT](./LICENSE) license
