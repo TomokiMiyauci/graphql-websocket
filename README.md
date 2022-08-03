@@ -6,16 +6,39 @@
 
 GraphQL client and handler compliant with GraphQL over WebSocket specification.
 
+## Protocols
+
+The protocol for GraphQL over WebSocket has not yet been formulated.
+
+The project supports the following 3rd party protocols:
+
+- [graphql-transport-ws](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md)
+
+The protocol must be implemented on both the client and server. The project has
+a namespace for each protocol, and module import is done as follows:
+
+```ts
+import {
+  createClient,
+  createHandler,
+} from "https://deno.land/x/graphql_websocket@$VERSION/<PROTOCOL>/mod.ts";
+```
+
 ## API
 
-### createHandler
+### graphql-transport-ws
+
+endpoint:
+`https://deno.land/x/graphql_websocket@$VERSION/graphql_transport_ws/mod.ts`
+
+#### createHandler
 
 Create `Request` handler compliant GraphQL over WebSocket server.
 
-#### Example
+##### Example
 
 ```ts
-import { createHandler } from "https://deno.land/x/graphql_websocket@$VERSION/mod.ts";
+import { createHandler } from "https://deno.land/x/graphql_websocket@$VERSION/graphql_transport_ws/mod.ts";
 import { serve } from "https://deno.land/std@$VERSION/http/mod.ts";
 import { buildSchema } from "https://esm.sh/graphql@$VERSION";
 
@@ -36,46 +59,46 @@ type Subscription {
 serve(handler);
 ```
 
-#### ReturnType
+##### ReturnType
 
 `(req: Request) => Response`
 
-#### Throws
+##### Throws
 
 - `AggregateError`
 
   When GraphQL schema validation error has occurred.
 
-### createClient
+#### createClient
 
 Create GraphQL over WebSocket client.
 
-#### Example
+##### Example
 
 ```ts
-import { createClient } from "https://deno.land/x/graphql_websocket@$VERSION/mod.ts";
+import { createClient } from "https://deno.land/x/graphql_websocket@$VERSION/graphql_transport_ws/mod.ts";
 
 const Client = createClient(`wss://<ENDPOINT>`);
 ```
 
-#### Parameters
+##### Parameters
 
 | Name |      Required      | Description                                                                                                               |
 | ---- | :----------------: | ------------------------------------------------------------------------------------------------------------------------- |
 | url  | :white_check_mark: | `string` &#124; `URL`<br> The URL to which to connect; this should be the URL to which the WebSocket server will respond. |
 
-#### ReturnType
+##### ReturnType
 
 [Client](#Client)
 
-### Client
+#### Client
 
 GraphQL over WebSocket client specification.
 
-#### Example
+##### Example
 
 ```ts
-import { createClient } from "https://deno.land/x/graphql_websocket@$VERSION/mod.ts";
+import { createClient } from "https://deno.land/x/graphql_websocket@$VERSION/graphql_transport_ws/mod.ts";
 
 const Client = createClient(`wss://<ENDPOINT>`);
 Client.addEventListener("next", ({ data }) => {

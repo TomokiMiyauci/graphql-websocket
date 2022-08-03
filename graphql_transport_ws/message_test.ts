@@ -1,5 +1,5 @@
-import { describe, expect, it } from "./dev_deps.ts";
-import { validateMessage } from "./validates.ts";
+import { describe, expect, it } from "../dev_deps.ts";
+import { validateMessage } from "./message.ts";
 
 describe("validateMessage", () => {
   it("should return error when message is not plain object", () => {

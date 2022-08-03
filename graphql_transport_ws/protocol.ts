@@ -7,94 +7,30 @@ import {
   isAsyncIterable,
   OperationTypeNode,
   parse,
-  Status,
   subscribe,
   tryCatchSync,
   validate,
-  validateSchema,
-} from "./deps.ts";
-import { isRequestError, MessengerImpl } from "./utils.ts";
-import {
-  CloseCode,
-  GRAPHQL_TRANSPORT_WS_PROTOCOL,
-  MessageType,
-} from "./constants.ts";
-import { GraphQLExecutionArgs } from "./types.ts";
-import { validateWebSocketRequest } from "./validates.ts";
-import { parseMessage } from "./parse.ts";
+} from "../deps.ts";
+import { GraphQLExecutionArgs } from "../types.ts";
+import { PrivateStatus } from "./status.ts";
+import { MessageType, MessengerImpl, parseMessage } from "./message.ts";
+import { isRequestError } from "../utils.ts";
 
-/** Create `Request` handler compliant GraphQL over WebSocket server.
- * @throws `AggregateError` - When GraphQL schema validation error has occurred.
- * ```ts
- * import { createHandler } from "https://deno.land/x/graphql_websocket@$VERSION/mod.ts";
- * import { serve } from "https://deno.land/std@$VERSION/http/mod.ts";
- * import { buildSchema } from "https://esm.sh/graphql@$VERSION";
- *
- * const handler = createHandler({
- *   schema: buildSchema(`type Query { hello: String }
- * type Subscription {
- *   greetings: String!
- * }`),
- *   rootValue: {
- *     greetings: async function* () {
- *       for (const hi of ["Hi", "Bonjour", "Hola", "Ciao", "Zdravo"]) {
- *         yield { greetings: hi };
- *       }
- *     },
- *   },
- * });
- *
- * serve(handler);
- * ```
- */
-export default function createHandler(
-  params: GraphQLExecutionArgs,
-): (req: Request) => Response {
-  const validationResult = validateSchema(params.schema);
-  if (validationResult.length) {
-    throw new AggregateError(
-      validationResult,
-      "GraphQL schema validation error",
-    );
-  }
+export const PROTOCOL = "graphql-transport-ws";
 
-  return (req: Request): Response => {
-    const [result, error] = validateWebSocketRequest(req);
-    if (!result) {
-      const headers = error.status === Status.MethodNotAllowed
-        ? new Headers({ "Allow": "GET" })
-        : undefined;
-      return new Response(error.message, {
-        status: error.status,
-        headers,
-      });
-    }
+export type ProtocolHandler = (
+  websocket: WebSocket,
+  ctx: { graphqlExecutionArgs: GraphQLExecutionArgs },
+) => void;
 
-    const protocol = req.headers.get("sec-websocket-protocol") ?? undefined;
-    const [data, err] = tryCatchSync(() =>
-      Deno.upgradeWebSocket(req, { protocol })
-    );
-
-    if (!data) {
-      const msg = resolveErrorMsg(err);
-      return new Response(msg, {
-        status: Status.InternalServerError,
-      });
-    }
-
-    register(data.socket, params);
-    return data.response;
-  };
-}
-
-function register(
-  socket: WebSocket,
-  args: GraphQLExecutionArgs,
-): void {
+export const graphqlTransportWsHandler: ProtocolHandler = (
+  socket,
+  { graphqlExecutionArgs: args },
+) => {
   socket.addEventListener("open", () => {
-    if (socket.protocol !== GRAPHQL_TRANSPORT_WS_PROTOCOL) {
+    if (socket.protocol !== PROTOCOL) {
       return socket.close(
-        CloseCode.SubprotocolNotAcceptable,
+        PrivateStatus.SubprotocolNotAcceptable,
         "Sub protocol is not acceptable",
       );
     }
@@ -107,7 +43,7 @@ function register(
 
     if (!message) {
       return socket.close(
-        CloseCode.BadRequest,
+        PrivateStatus.BadRequest,
         `Invalid message received. ${error.message}`,
       );
     }
@@ -190,7 +126,7 @@ function register(
       }
     }
   });
-}
+};
 
 function safeSend(
   socket: WebSocket,
@@ -209,8 +145,4 @@ function getExecutor(
   operationTypeNode: OperationTypeNode,
 ): typeof subscribe | typeof execute {
   return operationTypeNode === "subscription" ? subscribe : execute;
-}
-
-function resolveErrorMsg(value: unknown): string {
-  return value instanceof Error ? value.message : "Unknown error has occurred.";
 }

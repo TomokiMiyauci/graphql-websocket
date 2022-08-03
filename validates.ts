@@ -7,14 +7,7 @@ import {
   isString,
   Status,
 } from "./deps.ts";
-import { MessageType } from "./constants.ts";
-import {
-  CompleteMessage,
-  GraphQLParameters,
-  Message,
-  NextMessage,
-  SubscribeMessage,
-} from "./types.ts";
+import { GraphQLParameters } from "./types.ts";
 
 export function validateWebSocketRequest(req: Request): [result: true] | [
   result: false,
@@ -94,93 +87,6 @@ export function validateWebSocketRequest(req: Request): [result: true] | [
   }
 
   return [true];
-}
-
-export function validateMessage(
-  value: unknown,
-): [data: Message] | [data: undefined, error: Error] {
-  if (!isPlainObject(value)) {
-    return [
-      ,
-      Error(
-        `Invalid data type. Must be plain object.`,
-      ),
-    ];
-  }
-
-  if (!has(value, "type")) {
-    return [, Error(`Missing field. Must include "type" field.`)];
-  }
-  if (!isString(value.type)) {
-    return [, Error(`Invalid field. "type" field of value must be string.`)];
-  }
-
-  switch (value.type) {
-    case MessageType.ConnectionInit:
-    case MessageType.ConnectionAck:
-    case MessageType.Ping:
-    case MessageType.Pong: {
-      if (has(value, "payload") && !isPlainObject(value.payload)) {
-        return [, Error(`Invalid field. "payload" must be plain object.`)];
-      }
-
-      return [value as Message];
-    }
-
-    case MessageType.Subscribe: {
-      if (!has(value, "id")) {
-        return [, Error(`Missing field. "id"`)];
-      }
-      if (!isString(value.id)) {
-        return [
-          ,
-          Error(
-            `Invalid field. "id" must be string.`,
-          ),
-        ];
-      }
-      if (!has(value, "payload")) {
-        return [, Error(`Missing field. "payload"`)];
-      }
-
-      const graphqlParametersResult = validateGraphQLParameters(value.payload);
-
-      if (!graphqlParametersResult[0]) {
-        return graphqlParametersResult;
-      }
-
-      return [
-        { ...value, payload: graphqlParametersResult[0] } as SubscribeMessage,
-      ];
-    }
-
-    case MessageType.Next: {
-      if (!has(value, "id")) {
-        return [, Error(`Missing property. "id"`)];
-      }
-      if (!has(value, "payload")) {
-        return [, Error(`Missing property. "payload"`)];
-      }
-      return [value as NextMessage];
-    }
-
-    case MessageType.Complete: {
-      if (!has(value, "id")) {
-        return [, Error(`Missing property. "id"`)];
-      }
-
-      return [value as CompleteMessage];
-    }
-
-    default: {
-      return [
-        ,
-        Error(
-          `Invalid field. "type" field of "${value.type}" is not supported.`,
-        ),
-      ];
-    }
-  }
 }
 
 export function validateGraphQLParameters(
