@@ -16,7 +16,7 @@ export interface GraphQLWebSocketEventMap {
 
 /** GraphQL over WebSocket client specification.
  * ```ts
- * import { createClient } from "https://deno.land/x/graphql_websocket@$VERSION/mod.ts";
+ * import { createClient } from "https://deno.land/x/graphql_websocket@$VERSION/graphql_transport_ws/mod.ts";
  *
  * const Client = createClient(`wss://<ENDPOINT>`);
  * Client.addEventListener("next", ({ data }) => {
@@ -116,7 +116,7 @@ export class ClientImpl extends WebSocket implements Client {
  * @param url The URL to which to connect; this should be the URL to which the WebSocket server will respond.
  * @throws SyntaxError
  * ```ts
- * import { createClient } from "https://deno.land/x/graphql_websocket@$VERSION/mod.ts";
+ * import { createClient } from "https://deno.land/x/graphql_websocket@$VERSION/graphql_transport_ws/mod.ts";
  *
  * const Client = createClient(`wss://<ENDPOINT>`);
  * ```

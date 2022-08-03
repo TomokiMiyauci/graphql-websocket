@@ -1,6 +1,7 @@
 {
   "imports": {
     "https://deno.land/x/graphql_websocket@$VERSION/": "./",
+    "https://deno.land/x/graphql_websocket@$VERSION/<PROTOCOL>/": "./graphql_transport_ws/",
     "https://deno.land/std@$VERSION/": "https://deno.land/std@0.150.0/",
     "https://esm.sh/graphql@$VERSION": "https://esm.sh/graphql@16.5.0"
   }
