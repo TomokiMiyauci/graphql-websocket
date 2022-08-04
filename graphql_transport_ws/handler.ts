@@ -1,7 +1,9 @@
-import { Status, tryCatchSync, validateSchema } from "../deps.ts";
+import {
+  createHandler as createWsHandler,
+  createServerSocketHandler,
+  validateSchema,
+} from "../deps.ts";
 import { GraphQLExecutionArgs } from "../types.ts";
-import { validateWebSocketRequest } from "../validates.ts";
-import { graphqlTransportWsHandler } from "./protocol.ts";
 
 /** Create `Request` handler compliant GraphQL over WebSocket server.
  * @throws `AggregateError` - When GraphQL schema validation error has occurred.
@@ -29,7 +31,7 @@ import { graphqlTransportWsHandler } from "./protocol.ts";
  */
 export default function createHandler(
   params: GraphQLExecutionArgs,
-): (req: Request) => Response {
+): (req: Request) => Promise<Response> {
   const validationResult = validateSchema(params.schema);
   if (validationResult.length) {
     throw new AggregateError(
@@ -37,29 +39,8 @@ export default function createHandler(
       "GraphQL schema validation error",
     );
   }
+  const socketHandler = createServerSocketHandler(params.schema);
+  const handler = createWsHandler(socketHandler);
 
-  return (req: Request): Response => {
-    const [result, error] = validateWebSocketRequest(req);
-    if (!result) {
-      const headers = error.status === Status.MethodNotAllowed
-        ? new Headers({ "Allow": "GET" })
-        : undefined;
-      return new Response(error.message, {
-        status: error.status,
-        headers,
-      });
-    }
-
-    const protocol = req.headers.get("sec-websocket-protocol") ?? undefined;
-    const [data] = tryCatchSync(() => Deno.upgradeWebSocket(req, { protocol }));
-
-    if (!data) {
-      return new Response(null, {
-        status: Status.InternalServerError,
-      });
-    }
-
-    graphqlTransportWsHandler(data.socket, { graphqlExecutionArgs: params });
-    return data.response;
-  };
+  return handler;
 }

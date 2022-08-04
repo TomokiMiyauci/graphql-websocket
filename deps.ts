@@ -30,6 +30,21 @@ export {
   createHttpError,
   HttpError,
 } from "https://deno.land/std@0.150.0/http/http_errors.ts";
+export { createHandler } from "https://deno.land/x/ws_handler@1.0.0-beta.1/mod.ts";
+export {
+  type GraphQLParameters,
+  parseGraphQLParameters,
+} from "https://deno.land/x/graphql_http@1.0.0-beta.17/mod.ts";
+export { parseMessage as parseServerMessage } from "https://deno.land/x/graphql_transport_ws@1.0.0-beta.1/client/mod.ts";
+export {
+  MessageType,
+  PrivateStatus,
+  PROTOCOL,
+} from "https://deno.land/x/graphql_transport_ws@1.0.0-beta.1/mod.ts";
+export {
+  createSocketHandler as createServerSocketHandler,
+  parseMessage as parseClientMessage,
+} from "https://deno.land/x/graphql_transport_ws@1.0.0-beta.1/server/mod.ts";
 
 // deno-lint-ignore no-explicit-any
 export function has<T extends Record<any, any>, K extends string>(

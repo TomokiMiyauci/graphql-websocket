@@ -1,14 +1,16 @@
 // deno-lint-ignore-file no-explicit-any
-import { PrivateStatus } from "./status.ts";
 import {
-  MessageType,
   NextMessage,
-  parseMessage,
   PartialGraphQLParameters,
   SubscribeMessage,
 } from "./message.ts";
-import { isString } from "../deps.ts";
-import { PROTOCOL } from "./protocol.ts";
+import {
+  isString,
+  MessageType,
+  parseServerMessage,
+  PrivateStatus,
+  PROTOCOL,
+} from "../deps.ts";
 
 export interface GraphQLWebSocketEventMap {
   next: MessageEvent<NextMessage>;
@@ -93,7 +95,7 @@ export class ClientImpl extends WebSocket implements Client {
   ): void {
     if (["next"].includes(type)) {
       this.#ws.addEventListener("message", (ev) => {
-        const [data, error] = parseMessage(ev.data);
+        const [data, error] = parseServerMessage(ev.data);
 
         if (!data) {
           return this.close(PrivateStatus.BadRequest, error.message);
