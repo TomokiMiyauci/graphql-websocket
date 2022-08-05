@@ -1,16 +1,21 @@
 // deno-lint-ignore-file no-explicit-any
 import {
-  NextMessage,
-  PartialGraphQLParameters,
-  SubscribeMessage,
-} from "./message.ts";
-import {
+  GraphQLParameters,
   isString,
   MessageType,
+  NextMessage,
   parseServerMessage,
+  PartialBy,
   PrivateStatus,
   PROTOCOL,
+  SubscribeMessage,
 } from "../deps.ts";
+
+type PartialGraphQLParameter = keyof Omit<GraphQLParameters, "query">;
+export type PartialGraphQLParameters = PartialBy<
+  GraphQLParameters,
+  PartialGraphQLParameter
+>;
 
 export interface GraphQLWebSocketEventMap {
   next: MessageEvent<NextMessage>;
