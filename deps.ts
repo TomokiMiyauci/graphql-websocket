@@ -44,7 +44,6 @@ export {
   type SubscribeMessage,
 } from "https://deno.land/x/graphql_transport_ws@1.0.0-beta.3/mod.ts";
 export {
-  type Client,
   createClient,
   createServer,
 } from "https://deno.land/x/graphql_transport_ws@1.0.0-beta.9/mod.ts";

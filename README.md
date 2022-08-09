@@ -56,7 +56,7 @@ type Subscription {
   },
 });
 
-serve(handler);
+await serve(handler);
 ```
 
 ##### ReturnType
