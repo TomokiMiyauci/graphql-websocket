@@ -35,18 +35,19 @@ export {
   type GraphQLParameters,
   parseGraphQLParameters,
 } from "https://deno.land/x/graphql_http@1.0.0-beta.17/mod.ts";
-export { parseMessage as parseServerMessage } from "https://deno.land/x/graphql_transport_ws@1.0.0-beta.2/client/mod.ts";
+export { parseMessage as parseServerMessage } from "https://deno.land/x/graphql_transport_ws@1.0.0-beta.3/client/mod.ts";
 export {
   MessageType,
   type NextMessage,
   PrivateStatus,
   PROTOCOL,
   type SubscribeMessage,
-} from "https://deno.land/x/graphql_transport_ws@1.0.0-beta.2/mod.ts";
+} from "https://deno.land/x/graphql_transport_ws@1.0.0-beta.3/mod.ts";
 export {
-  createSocketHandler as createServerSocketHandler,
-  parseMessage as parseClientMessage,
-} from "https://deno.land/x/graphql_transport_ws@1.0.0-beta.2/server/mod.ts";
+  type Client,
+  createClient,
+  createServer,
+} from "https://deno.land/x/graphql_transport_ws@1.0.0-beta.9/mod.ts";
 
 // deno-lint-ignore no-explicit-any
 export function has<T extends Record<any, any>, K extends string>(

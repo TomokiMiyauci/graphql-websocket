@@ -1,6 +1,6 @@
 import {
   createHandler as createWsHandler,
-  createServerSocketHandler,
+  createServer,
   validateSchema,
 } from "../deps.ts";
 import { GraphQLExecutionArgs } from "../types.ts";
@@ -39,8 +39,12 @@ export default function createHandler(
       "GraphQL schema validation error",
     );
   }
-  const socketHandler = createServerSocketHandler(params.schema);
-  const handler = createWsHandler(socketHandler);
+  const handler = createWsHandler((socket) => {
+    createServer(
+      { url: socket, schema: params.schema },
+      params,
+    );
+  });
 
   return handler;
 }
