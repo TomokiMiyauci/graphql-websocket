@@ -1,3 +1,10 @@
+# [1.0.0-beta.4](https://github.com/graphqland/graphql-websocket/compare/1.0.0-beta.3...1.0.0-beta.4) (2022-08-09)
+
+
+### Bug Fixes
+
+* **grpahql_transport_ws:** add picking sub-protocol for `graphql-transport-ws` ([ec6968b](https://github.com/graphqland/graphql-websocket/commit/ec6968b7cadbb9b579f580ac7e39aca49b919f09))
+
 # [1.0.0-beta.3](https://github.com/TomokiMiyauci/graphql-websocket/compare/1.0.0-beta.2...1.0.0-beta.3) (2022-08-09)
 
 
