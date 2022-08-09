@@ -25,27 +25,20 @@ export {
   validate,
   validateSchema,
 } from "https://esm.sh/graphql@16.5.0";
-export { Status } from "https://deno.land/std@0.150.0/http/http_status.ts";
+export { Status } from "https://deno.land/std@0.151.0/http/http_status.ts";
 export {
   createHttpError,
   HttpError,
-} from "https://deno.land/std@0.150.0/http/http_errors.ts";
-export { createHandler } from "https://deno.land/x/ws_handler@1.0.0-beta.1/mod.ts";
+} from "https://deno.land/std@0.151.0/http/http_errors.ts";
+export { createHandler } from "https://deno.land/x/ws_handler@1.0.0-beta.3/mod.ts";
 export {
   type GraphQLParameters,
   parseGraphQLParameters,
 } from "https://deno.land/x/graphql_http@1.0.0-beta.17/mod.ts";
-export { parseMessage as parseServerMessage } from "https://deno.land/x/graphql_transport_ws@1.0.0-beta.3/client/mod.ts";
-export {
-  MessageType,
-  type NextMessage,
-  PrivateStatus,
-  PROTOCOL,
-  type SubscribeMessage,
-} from "https://deno.land/x/graphql_transport_ws@1.0.0-beta.3/mod.ts";
 export {
   createClient,
   createServer,
+  PROTOCOL,
 } from "https://deno.land/x/graphql_transport_ws@1.0.0-beta.9/mod.ts";
 
 // deno-lint-ignore no-explicit-any

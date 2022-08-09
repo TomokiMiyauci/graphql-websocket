@@ -1,6 +1,7 @@
 import {
   createHandler as createWsHandler,
   createServer,
+  PROTOCOL,
   validateSchema,
 } from "../deps.ts";
 import { GraphQLExecutionArgs } from "../types.ts";
@@ -44,6 +45,12 @@ export default function createHandler(
       { url: socket, schema: params.schema },
       params,
     );
+  }, {
+    protocol: (protocols) => {
+      if (protocols.includes(PROTOCOL)) {
+        return PROTOCOL;
+      }
+    },
   });
 
   return handler;
