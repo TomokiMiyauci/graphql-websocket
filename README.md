@@ -112,6 +112,6 @@ Client.subscribe({
 
 ## License
 
-Copyright © 2022-present [TomokiMiyauci](https://github.com/TomokiMiyauci).
+Copyright © 2022-present [graphqland](https://github.com/graphqland).
 
 Released under the [MIT](./LICENSE) license
